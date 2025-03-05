@@ -1,8 +1,8 @@
 import os
 import pandas as pd
 from datetime import datetime
-import re
 import argparse
+import shutil
 
 def get_image_info(filename):
     """Extract region, fov, and z_level from image filename."""
@@ -35,8 +35,21 @@ def get_image_info(filename):
     }
 
 def process_folder(folder_path):
+    # Path to the original coordinates CSV
+    coords_path = os.path.join(folder_path, 'coordinates.csv')
+    
+    # Check if coordinates.csv exists
+    if not os.path.exists(coords_path):
+        print(f"Warning: coordinates.csv not found in {folder_path}, skipping folder")
+        return
+    
+    # Back up the original coordinates CSV
+    backup_path = os.path.join(folder_path, 'backup_coordinates.csv')
+    shutil.copy2(coords_path, backup_path)
+    print(f"Original coordinates backed up to: {backup_path}")
+    
     # Read the original coordinates CSV
-    coords_df = pd.read_csv(os.path.join(folder_path, 'coordinates.csv'))
+    coords_df = pd.read_csv(coords_path)
     
     # Get all image files
     image_extensions = ('.tiff', '.bmp', '.jpg', '.png')
